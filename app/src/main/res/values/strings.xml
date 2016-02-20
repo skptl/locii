@@ -15,7 +15,10 @@
 
 
     </string>
+<<<<<<< Updated upstream
     <string name="splashscreen">"+------------------+\n|       _+-+_      |\n|     +       +    |\n|     +  (@)  +    |\n|     +_     _+    |\n|       +   +      |\n|        +_+       |\n|         +        |\n|         +        |\n+------------------+</string>
+=======
+>>>>>>> Stashed changes
 
 
 </resources>
