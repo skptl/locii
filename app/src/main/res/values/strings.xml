@@ -12,5 +12,10 @@
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
+
+
     </string>
+    <string name="splashscreen">"+------------------+\n|       _+-+_      |\n|     +       +    |\n|     +  (@)  +    |\n|     +_     _+    |\n|       +   +      |\n|        +_+       |\n|         +        |\n|         +        |\n+------------------+</string>
+
+
 </resources>
