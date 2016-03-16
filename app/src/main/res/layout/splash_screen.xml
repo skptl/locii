@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary">
 
+<!--
     <TextView
         android:id="@+id/splashscreen"
         android:text="@string/splashscreen"
@@ -16,6 +17,7 @@
         android:layout_height="250dp"
         android:textSize="@dimen/textview"
         android:textColor="#FFFFFF" />
+-->
 
 
 
