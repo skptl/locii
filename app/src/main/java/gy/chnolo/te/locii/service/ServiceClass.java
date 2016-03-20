@@ -1,44 +1,39 @@
 package gy.chnolo.te.locii.service;
 
-import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.Service;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-
-import static com.google.android.gms.location.LocationServices.FusedLocationApi;
 
 /**
  * Created by Shilpan Patel on 3/9/16.
  */
-public class ServiceClass extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class ServiceClass extends Service implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
 
 
     protected Location mLocation;
     protected IBinder iBinder = new BinderService();
     protected GoogleApiClient mGoogleApiClient;
     protected double latitude, longitude;
-    protected boolean mbound = false;
+    protected LocationRequest locationRequest = LocationRequest.create();
 
-    protected synchronized void buildGoogleApiClient() {
+
+    public synchronized void buildGoogleApiClient() {
 
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
                 .build();
     }
 
@@ -49,7 +44,14 @@ public class ServiceClass extends Service implements GoogleApiClient.ConnectionC
         super.onCreate();
         buildGoogleApiClient();
         mGoogleApiClient.connect();
-        mbound = true;
+        setLocationRequests();
+    }
+
+    public void setLocationRequests() {
+
+        locationRequest.setFastestInterval(1000);
+        locationRequest.setInterval(5000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
 
@@ -62,35 +64,31 @@ public class ServiceClass extends Service implements GoogleApiClient.ConnectionC
     }
 
     @Override
-    public void onConnected(Bundle bundle) {
+    public boolean onUnbind(Intent intent) {
 
+        Log.i("unBind","Activity_unbind");
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
 
 
         Log.i("onconnect", "connect_api");
 
-        if (mbound) {
-            mLocation = FusedLocationApi.getLastLocation(mGoogleApiClient);
-            if(mLocation == null) {
-
-                Log.i("null","location_null");
-                return;
-            }
-            else {
-                Log.i("got", "Got_location");
-                latitude = mLocation.getLatitude();
-                longitude = mLocation.getLongitude();
-
-            }
-
+                mLocation=LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLocation==null) {
+        Log.i("Location","returning Null");
         }
+                longitude=mLocation.getLongitude();
+                latitude=mLocation.getLatitude();
+                Log.i("get_Location",mLocation.toString());
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
+                Log.i("requesting", "request");
+                Log.i("null", "location_null");
 
-        else {
+            }
 
-            mbound = false;
-        }
-
-
-    }
 
 
     @Override
@@ -101,8 +99,16 @@ public class ServiceClass extends Service implements GoogleApiClient.ConnectionC
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         mGoogleApiClient.disconnect();
+
         //nothing to do here
     }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        Log.i("change",location.toString());
+    }
+
 
     public class BinderService extends Binder {
 
@@ -110,6 +116,12 @@ public class ServiceClass extends Service implements GoogleApiClient.ConnectionC
 
             return ServiceClass.this;
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.i("destroy","Service_destroy");
+        super.onDestroy();
     }
 }
 

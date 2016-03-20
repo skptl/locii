@@ -8,6 +8,8 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,7 +19,8 @@ public class LocationClass extends Activity {
 
     protected TextView lat_text;
     protected TextView long_text;
-    // protected Button button;
+
+     protected Button button;
     protected Intent i;
     protected double latitude,longitude;
     ServiceClass locationService = new ServiceClass();
@@ -33,17 +36,22 @@ public class LocationClass extends Activity {
 
         lat_text = (TextView) findViewById(R.id.latitude);
         long_text = (TextView) findViewById(R.id.longitude);
-        // button=(Button)findViewById(R.id.button);
-        Intent i = new Intent(getApplicationContext(),ServiceClass.class);
-        bindService(i, mServiceConnection, Context.BIND_AUTO_CREATE);
-        startService(i);
+        button=(Button)findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getCoordinates();
+                updateLocationUI(longitude, latitude);
+            }
+        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        getCoordinates();
-        updateLocationUI(latitude,longitude);
+        Intent i = new Intent(this,ServiceClass.class);
+        bindService(i, mServiceConnection, Context.BIND_AUTO_CREATE);
+        startService(i);
     }
 
     protected ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -64,16 +72,16 @@ public class LocationClass extends Activity {
         }
     };
 
-
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        stopService(i);
+    protected void onStop() {
+        super.onStop();
+        unbindService(mServiceConnection);
     }
 
     public void getCoordinates() {
 
         latitude = locationService.latitude;
+        Log.i("lat",String.valueOf(latitude));
         longitude = locationService.longitude;
 
     }
